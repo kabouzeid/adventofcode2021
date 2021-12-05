@@ -34,7 +34,6 @@ fn main() -> io::Result<()> {
 
         debug_assert_eq!(boards.last().unwrap().last().unwrap().len(), 5);
     }
-    let boards = boards;
 
     let mut marked: Vec<Vec<Vec<bool>>> = vec![];
     for _ in boards.iter() {
@@ -73,6 +72,7 @@ fn main() -> io::Result<()> {
         unmarked_numbers
     }
 
+    let mut won = vec![false; boards.len()];
     for n in number_draws {
         // mark numbers
         for (board, mark) in boards.iter().zip(marked.iter_mut()) {
@@ -86,16 +86,16 @@ fn main() -> io::Result<()> {
         }
         // check if a board has won
         for (board_index, mark) in marked.iter().enumerate() {
-            if has_complete_line(mark) || has_complete_col(mark) {
+            if !won[board_index] && (has_complete_line(mark) || has_complete_col(mark)) {
+                won[board_index] = true; // makes sure we only print each winning board once
                 let score = unmarked_numbers(&boards[board_index], mark)
                     .iter()
                     .sum::<u32>()
                     * n;
-                println!("{}", score); // prints the solution
-                return Ok(());
+                println!("{}", score); // prints the score of each winning board once it wins
             }
         }
     }
 
-    panic!("No board wins");
+    Ok(())
 }
